@@ -40,39 +40,56 @@ class ToDoList extends Component {
     }
 
     getTodos = () => {
-        axios.get(`${endpoint}/api/todo`).then((res) => {
-            if(res.data){
-                const todos = res.data.map((todo) => (
-                    <Card key={todo._id}>
-                        <Card.Content>
-                            <Card.Header>{todo.value}</Card.Header>
-                            <Card.Meta>{todo.date}</Card.Meta>
-                            <Card.Description>
-                                <List>
-                                    <List.Item>
-                                        <Button icon color="green" onClick={() => this.updateTodo(todo._id)}>
-                                            <Icon name="check" />
-                                        </Button>
-                                        <Button icon color="red" onClick={() => this.deleteTodo(todo._id)}>
-                                            <Icon name="trash" />
-                                        </Button>
-                                    </List.Item>
-                                </List>
-                            </Card.Description>
-                        </Card.Content>
-                    </Card>
-                ));
-                this.setState({todos});
-            } else {
-                this.setState({todos: []});
-            }
-        })
+       axios.get(endpoint+"/api/task").then((res) => {
+        if(res.data){
+            this.setState({
+                todos:res.data.map((todo) => {
+                    let color ="yellow";
+                    let style = {
+                        wordWrap: "break-word",
+                    };
+
+                    if(todo.status){
+                        color = "green";
+                        style["textDecoration"] = "line-through";
+                    }
+
+                    return(
+                        <Card key={todo._id} color={color}>
+                            <Card.Content>
+                                <Card.Header textAlign="left">
+                                    <div style={style}>{todo.value}</div>
+                                </Card.Header>
+
+                                <Card.Meta textAlign="right">
+                                    <Icon
+                                    name="check circle"
+                                    color="green"
+                                    onClick={() => this.updateTodo(todo._id)}
+                                    ></Icon>
+                                    <span style={{paddingRight: 10}}>Undo</span>
+                                        <Icon
+                                        name="delete"
+                                        color="red"
+                                        onClick={() => this.deleteTodo(todo._id)}
+                                        ></Icon>
+                                    <span style={{paddingRight: 10}}>Delete</span>
+                                </Card.Meta>
+                            </Card.Content>
+                        </Card>
+                    )
+                })
+            })
+        }else{
+            this.setState({todos: []});
+        }
+       })
     }
 
     updateTodo = (id) => {
         axios.put(endpoint+"/api/task" +id,{
             headers:{
-                "Content-Type":"application/json"
+                "Content-Type":"application/x-www-form-urlencoded"
             },
         }).then((res) => {
             console.log(res);
@@ -83,7 +100,7 @@ class ToDoList extends Component {
     undoTodo = (id) => {
         axios.put(endpoint+"/api/task" +id,{
             headers:{
-                "Content-Type":"application/json"
+                "Content-Type":"application/x-www-form-urlencoded"
             },
         }).then((res) => {
             console.log(res);
